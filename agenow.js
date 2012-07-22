@@ -111,7 +111,7 @@
         if (d < year) {
             return locales[lang]['days'].format(Math.floor(d / day));
         }
-	    if (d > year && d < year*2 ){
+        if (d > year && d < year*2 ){
             return locales[lang]['year'];
         }else{
             return locales[lang]['years'].format(Math.floor(d / year));
