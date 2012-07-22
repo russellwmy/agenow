@@ -1,27 +1,26 @@
 (function($) {
+    // Add format function to String object
     String.prototype.format = function() {
         var args = arguments;
         return this.replace(/\{\{|\}\}|\{(\d+)\}/g, function(curlyBrack, index) {
             return ((curlyBrack == "{{") ? "{" : ((curlyBrack == "}}") ? "}" : args[index]));
         });
     };
-
+    // Add ISOString output function
     if (!Date.prototype.toISOString) {
         Date.prototype.toISOString = function() {
             function pad(n) {
                 return n < 10 ? '0' + n : n
             }
-
             return this.getUTCFullYear() + '-' + pad(this.getUTCMonth() + 1) + '-' + pad(this.getUTCDate()) + 'T' + pad(this.getUTCHours()) + ':' + pad(this.getUTCMinutes()) + ':' + pad(this.getUTCSeconds()) + 'Z';
         };
     };
-    Date.prototype.setISO8601 = function(string) {
+    // Add ISOString parsing function 
+    Date.prototype.setISOString = function(string) {
         var regexp = "([0-9]{4})(-([0-9]{2})(-([0-9]{2})" + "(T([0-9]{2}):([0-9]{2})(:([0-9]{2})(\.([0-9]+))?)?" + "(Z|(([-+])([0-9]{2}):([0-9]{2})))?)?)?)?";
         var d = string.match(new RegExp(regexp));
-
         var offset = 0;
         var date = new Date(d[1], 0, 1);
-
         if (d[3]) {
             date.setMonth(d[3] - 1);
         }
@@ -44,11 +43,11 @@
             offset = (Number(d[16]) * 60) + Number(d[17]);
             offset *= ((d[15] == '-') ? 1 : -1);
         }
-
         offset -= date.getTimezoneOffset();
         time = (Number(date) + (offset * 60 * 1000));
         this.setTime(Number(time));
     }
+    // Output dictionary for different languages
     var locales = {
         'en' : {
             'second' : 'right now',
@@ -79,7 +78,7 @@
             'years' : '{0} 年前'
         }
     }
-
+    // Calcuate age text
     var toText = function(a, lang) {
         var b = new Date();
         var c = typeof a == 'date ' ? a : new Date(a);
@@ -112,29 +111,27 @@
         if (d < year) {
             return locales[lang]['days'].format(Math.floor(d / day));
         }
-	if (d > year && d < year*2 ){
+	    if (d > year && d < year*2 ){
             return locales[lang]['year'];
         }else{
             return locales[lang]['years'].format(Math.floor(d / year));
         }
     };
+    // jQuery interface
     $.fn.agenow = function(options) {
         var opts = $.extend({}, $.fn.agenow.defaults, options);
-
         return this.each(function() {
             var o = opts;
             var lang = o.lang;
             var timeStr = $(this).attr('time');
             var time = new Date();
-            time.setISO8601(timeStr);
+            time.setISOString(timeStr);
             var text = toText(time, lang);
             $(this).text(text);
-
         });
     };
-
+    // Default parameters
     $.fn.agenow.defaults = {
         lang : 'yue'
     };
 })(jQuery);
-
