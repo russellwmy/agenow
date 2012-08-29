@@ -125,7 +125,11 @@
             var lang = o.lang;
             var timeStr = $(this).attr('time');
             var time = new Date();
-            time.setISOString(timeStr);
+            try{
+                time.setISOString(timeStr);
+            }catch(Exception e){
+                time = new Date(timeStr);
+            }
             var text = toText(time, lang);
             $(this).text(text);
         });
